@@ -1345,6 +1345,7 @@ if (typeof Slick === "undefined") {
             return;
           }
 
+          var oldSortColumns = $.extend(true, [], sortColumns);
           var sortColumn = null;
           var i = 0;
           for (; i < sortColumns.length; i++) {
@@ -1388,6 +1389,20 @@ if (typeof Slick === "undefined") {
                   sortColumns.push(sortColumn);
                 }
               }
+          }
+
+          if (trigger(self.onBeforeSort, {
+            multiColumnSort: options.multiColumnSort,
+            oldSortColumns: $.map(oldSortColumns, function(col) {
+              return { columnId: columns[getColumnIndex(col.columnId)].id, sortCol: columns[getColumnIndex(col.columnId)], sortAsc: col.sortAsc };
+            }),
+            newSortColumns: $.map(sortColumns, function(col) {
+              return { columnId: columns[getColumnIndex(col.columnId)].id, sortCol: columns[getColumnIndex(col.columnId)], sortAsc: col.sortAsc };
+            }),
+            columnId: column.id
+          }, e) === false) {
+            sortColumns = oldSortColumns;
+            return;
           }
 
           setSortColumns(sortColumns);
@@ -5874,6 +5889,7 @@ if (typeof Slick === "undefined") {
 
       // Events
       "onScroll": new Slick.Event(),
+      "onBeforeSort": new Slick.Event(),
       "onSort": new Slick.Event(),
       "onHeaderMouseEnter": new Slick.Event(),
       "onHeaderMouseLeave": new Slick.Event(),
